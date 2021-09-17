@@ -1,20 +1,14 @@
 package main
 
 import (
-	"github.com/labstack/echo/v4"
-	"helin/router"
-	"net/http"
+	"helin/config"
+	"helin/routers"
 )
 
 func main() {
-	e := echo.New()
-	e.GET("/aa", func(context echo.Context) error {
-		hello := router.Hello()
-		return context.String(http.StatusOK, hello)
-	})
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
-	e.Static("/static", "static/test.html")
-	e.Logger.Fatal(e.Start(":8080"))
+	config.Init()
+	r := routers.InitRouters()
+	if err := r.Start(config.GetConfig().GetString("server.port")); err != nil {
+		panic(err)
+	}
 }
