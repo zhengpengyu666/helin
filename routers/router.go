@@ -7,7 +7,6 @@ import (
 )
 
 func InitRouters() *echo.Echo {
-
 	e := echo.New()
 	// routers
 	e.Static("/static", "static/test.html")
