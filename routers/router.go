@@ -2,15 +2,17 @@ package routers
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func InitRouters() *echo.Echo {
 	e := echo.New()
 	// routers
-	//e.Static("/static", "static/test.html")
-	//e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
-	//	Level: 5,
-	//}))
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 5,
+	}))
+	e.Static("/dist", "./static/dist")
+	e.Static("/", "./static/dist")
 	//e.Static("/obj", "obj")
 	api := e.Group("/api")
 	{

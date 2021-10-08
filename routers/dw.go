@@ -54,6 +54,7 @@ func client(dw string) string {
 			println(err)
 		}
 	}(conn)
+	println("已经访问" + dw + "号斗轮机\n")
 	return s
 }
 func dealDw(data string) string {
