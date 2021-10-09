@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/labstack/echo/v4"
+	"helin/config"
 	"math/rand"
 	"net"
 	"net/http"
@@ -11,18 +12,17 @@ import (
 
 const (
 	NETWORK = "tcp"
-	DDR     = "127.0.0.1:7751" //服务器地址
 	DW1     = "DATA-DW-1"
 	DW2     = "DATA-DW-2"
 )
 
 func Dw(c echo.Context) error {
-	//s1 := client(DW1)
-	//s2 := client(DW2)
-	//dw1 := dealDw(s1)
-	//dw2 := dealDw(s2)
-	dw1 := dddd()
-	dw2 := dddd()
+	s1 := client(DW1)
+	s2 := client(DW2)
+	dw1 := dealDw(s1)
+	dw2 := dealDw(s2)
+	//dw1 := dddd()
+	//dw2 := dddd()
 	m := make(map[string]interface{})
 	if dw1 == "" || dw2 == "" {
 		m["code"] = -1
@@ -38,7 +38,8 @@ func Dw(c echo.Context) error {
 }
 
 func client(dw string) string {
-	conn, err := net.DialTimeout(NETWORK, DDR, 100*time.Millisecond) //创建套接字,连接服务器,设置超时时间
+	addr := config.GetConfig().GetString("ipPort")
+	conn, err := net.DialTimeout(NETWORK, addr, 100*time.Millisecond) //创建套接字,连接服务器,设置超时时间
 	if err != nil {
 		//fmt.Println(err)
 		//os.Exit(1)

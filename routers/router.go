@@ -12,6 +12,7 @@ func InitRouters() *echo.Echo {
 		Level: 5,
 	}))
 	e.Static("/dist", "./static/dist")
+	e.Static("/index", "./static/dist/index.html")
 	e.Static("/", "./static/dist")
 	//e.Static("/obj", "obj")
 	api := e.Group("/api")
