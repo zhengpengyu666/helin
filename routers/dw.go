@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"helin/config"
 	"math/rand"
@@ -14,6 +15,7 @@ const (
 	NETWORK = "tcp"
 	DW1     = "DATA-DW-1"
 	DW2     = "DATA-DW-2"
+	UWB     = "DATA-UWB"
 )
 
 func Dw(c echo.Context) error {
@@ -37,6 +39,52 @@ func Dw(c echo.Context) error {
 	return c.JSON(http.StatusOK, m)
 }
 
+func Uwb(c echo.Context) error {
+
+	//s := client(UWB)
+	m := make(map[string]interface{})
+	//if s == "" {
+	//	m["code"] = -1
+	//	m["message"] = "定位异常"
+	//	m["data"] = ""
+	//	return c.JSON(http.StatusOK, m)
+	//}
+
+	s := "UWB,200.000_22.000_10.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
+		"0.000_0.000_0.000,150.000_13.000_20.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
+		"0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
+		"0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
+		"0.000_0.000_0.000,0.000_0.000_0.000,300.000_50.000_30.000,0.000_0.000_0.000,0.000_0.000_0.000," +
+		"0.000_0.000_0.000,25.000_-20.000_10.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
+		"0.000_0.000_0.000,END"
+	data := dealUwb(s)
+	m["code"] = 0
+	m["message"] = "成功"
+	m["data"] = data
+	return c.JSON(http.StatusOK, m)
+}
+func dealUwb(data string) map[string]interface{} {
+	//UWB,0.000_0.000_0.000,END  30个坐标，前10个是车后20个是人  长度300 ，宽度+-50 高度30
+	data = strings.Replace(data, "_", " ", -1)
+	s := strings.Split(data, ",")
+	var person []string
+	var cart []string
+	for i := 1; i < len(s)-1; i++ {
+		if strings.EqualFold(s[i], "0.000 0.000 0.000") {
+			continue
+		}
+		if i < 11 {
+			person = append(person, s[i])
+		} else {
+			cart = append(cart, s[i])
+		}
+	}
+	m := make(map[string]interface{})
+	m["person"] = person
+	m["cart"] = cart
+	return m
+}
+
 func client(dw string) string {
 	addr := config.GetConfig().GetString("ipPort")
 	conn, err := net.DialTimeout(NETWORK, addr, 100*time.Millisecond) //创建套接字,连接服务器,设置超时时间
@@ -55,7 +103,7 @@ func client(dw string) string {
 			println(err)
 		}
 	}(conn)
-	println("已经访问" + dw + "号斗轮机\n")
+	fmt.Println("采集的信息是：" + s)
 	return s
 }
 func dealDw(data string) string {

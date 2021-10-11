@@ -18,6 +18,7 @@ func InitRouters() *echo.Echo {
 	api := e.Group("/api")
 	{
 		api.POST("/dw", Dw)
+		api.POST("/uwb", Uwb)
 	}
 	return e
 }
