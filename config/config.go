@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 )
 
@@ -17,7 +18,7 @@ func Init() {
 	config.AddConfigPath("config/")
 	err = config.ReadInConfig()
 	if err != nil {
-		panic(err)
+		fmt.Println("初始化异常")
 	}
 }
 func GetConfig() *viper.Viper {
