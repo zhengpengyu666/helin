@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -32,7 +33,7 @@ func Dw(c echo.Context) error {
 		m["data"] = ""
 		return c.JSON(http.StatusOK, m)
 	}
-	dw := dw1 + "," + dw2
+	dw := dw2 + "," + dw1
 	m["code"] = 0
 	m["message"] = "成功"
 	m["data"] = dw
@@ -41,23 +42,19 @@ func Dw(c echo.Context) error {
 
 func Uwb(c echo.Context) error {
 
-	//s := client(UWB)
+	s := client(UWB)
+	//s := "UWB,0.000_0.000_0.000,328.977_4.316_23.855,-0.281_18.387_48.917,331.387_8.230_37.478,344.055_-nan(ind)_-nan(ind),0.000_0.000_0.000,0.000_0.000_0.000,5.910_5.184_-53.435,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,END"
 	m := make(map[string]interface{})
-	//if s == "" {
-	//	m["code"] = -1
-	//	m["message"] = "定位异常"
-	//	m["data"] = ""
-	//	return c.JSON(http.StatusOK, m)
-	//}
-
-	s := "UWB,200.000_22.000_10.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
-		"0.000_0.000_0.000,150.000_13.000_20.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
-		"0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
-		"0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
-		"0.000_0.000_0.000,0.000_0.000_0.000,300.000_50.000_30.000,0.000_0.000_0.000,0.000_0.000_0.000," +
-		"0.000_0.000_0.000,25.000_-20.000_10.000,0.000_0.000_0.000,0.000_0.000_0.000,0.000_0.000_0.000," +
-		"0.000_0.000_0.000,END"
+	if s == "" {
+		m["code"] = -1
+		m["message"] = "定位异常"
+		m["data"] = ""
+		return c.JSON(http.StatusOK, m)
+	}
 	data := dealUwb(s)
+	//data := make(map[string]interface{})
+	//data["person"] = uwbData()
+	//data["cart"] = uwbData()
 	m["code"] = 0
 	m["message"] = "成功"
 	m["data"] = data
@@ -70,13 +67,16 @@ func dealUwb(data string) map[string]interface{} {
 	var person []string
 	var cart []string
 	for i := 1; i < len(s)-1; i++ {
+		if strings.Contains(s[i], "nan") {
+			continue
+		}
 		if strings.EqualFold(s[i], "0.000 0.000 0.000") {
 			continue
 		}
 		if i < 11 {
-			person = append(person, s[i])
-		} else {
 			cart = append(cart, s[i])
+		} else {
+			person = append(person, s[i])
 		}
 	}
 	m := make(map[string]interface{})
@@ -84,10 +84,24 @@ func dealUwb(data string) map[string]interface{} {
 	m["cart"] = cart
 	return m
 }
+func uwbData() [5]string {
+	//UWB,0.000_0.000_0.000,END  30个坐标，前10个是车后20个是人  长度300 ，宽度+-50 高度30
+	var uwb [5]string
+	for i := 0; i < 5; i++ {
+		x := rand.Intn(300)
+		y := rand.Intn(50)
+		if i%2 != 0 {
+			y = -y
+		}
+		z := rand.Intn(30)
+		uwb[i] = strconv.Itoa(x) + " " + strconv.Itoa(y) + " " + strconv.Itoa(z)
+	}
+	return uwb
+}
 
 func client(dw string) string {
 	addr := config.GetConfig().GetString("ipPort")
-	conn, err := net.DialTimeout(NETWORK, addr, 100*time.Millisecond) //创建套接字,连接服务器,设置超时时间
+	conn, err := net.DialTimeout(NETWORK, addr, 200*time.Millisecond) //创建套接字,连接服务器,设置超时时间
 	if err != nil {
 		//fmt.Println(err)
 		//os.Exit(1)
@@ -115,19 +129,17 @@ func dealDw(data string) string {
 }
 
 func dddd() string {
-	var dw1 [30]string
-	dw1[0] = "0.000 -90.000 -10.000"
-	dw1[1] = "0.000 -60.000 -0.000"
-	dw1[2] = "0.000 -30.000 10.000"
-	dw1[3] = "10.000 -90.000 -10.000"
-	dw1[4] = "10.000 -90.000 0.000"
-	dw1[5] = "10.000 -60.000 10.000"
-	dw1[6] = "20.000 -30.000 -10.000"
-	dw1[7] = "20.000 90.000 0.000"
-	dw1[8] = "20.000 60.000 10.000"
-	dw1[9] = "30.000 30.000 -10.000"
-	dw1[10] = "30.000 -90.000 0.000"
-	dw1[11] = "30.000 60.000 -10.000"
-	i := rand.Intn(12)
-	return dw1[i]
+	//行进距离 0-30    回转-90-90  俯仰-10- 10
+	x := rand.Intn(30)
+	y := rand.Intn(90)
+	if y%2 != 0 {
+		y = -y
+	}
+	z := rand.Intn(10)
+	if z%2 != 0 {
+		z = -z
+	}
+	result := strconv.Itoa(x) + " " + strconv.Itoa(y) + " " + strconv.Itoa(z)
+	fmt.Println("采集的信息是：" + result)
+	return result
 }
