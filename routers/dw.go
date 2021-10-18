@@ -20,12 +20,12 @@ const (
 )
 
 func Dw(c echo.Context) error {
-	//s1 := client(DW1)
-	//s2 := client(DW2)
-	//dw1 := dealDw(s1)
-	//dw2 := dealDw(s2)
-	dw1 := dddd()
-	dw2 := dddd()
+	s1 := client(DW1)
+	s2 := client(DW2)
+	dw1 := dealDw(s1)
+	dw2 := dealDw(s2)
+	//dw1 := dddd()
+	//dw2 := dddd()
 	m := make(map[string]interface{})
 	if dw1 == "" || dw2 == "" {
 		m["code"] = -1
@@ -41,8 +41,8 @@ func Dw(c echo.Context) error {
 }
 
 func Uwb(c echo.Context) error {
-	//s := client(UWB)
-	s := test1()
+	s := client(UWB)
+	//s := test1()
 	m := make(map[string]interface{})
 	if s == "" {
 		m["code"] = -1
