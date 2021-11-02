@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"helin/config"
+	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
@@ -19,13 +20,22 @@ const (
 	UWB     = "DATA-UWB"
 )
 
+type Obj struct {
+	Name string `json:"name"`
+}
+
+func FindObj() {
+	files, _ := ioutil.ReadDir("D:\\helin\\helin\\data")
+	fmt.Println(files[len(files)-1].Name())
+}
+
 func Dw(c echo.Context) error {
-	//s1 := client(DW1)
-	//s2 := client(DW2)
-	//dw1 := dealDw(s1)
-	//dw2 := dealDw(s2)
-	dw1 := dddd()
-	dw2 := dddd()
+	s1 := client(DW1)
+	s2 := client(DW2)
+	dw1 := dealDw(s1)
+	dw2 := dealDw(s2)
+	//dw1 := dddd()
+	//dw2 := dddd()
 	m := make(map[string]interface{})
 	if dw1 == "" || dw2 == "" {
 		m["code"] = -1
@@ -33,16 +43,17 @@ func Dw(c echo.Context) error {
 		m["data"] = ""
 		return c.JSON(http.StatusOK, m)
 	}
-	dw := dw2 + "," + dw1
+	dw := dw1 + "," + dw2
 	m["code"] = 0
 	m["message"] = "成功"
 	m["data"] = dw
+	fmt.Println("斗轮机定位： " + dw1 + "  " + dw2)
 	return c.JSON(http.StatusOK, m)
 }
 
 func Uwb(c echo.Context) error {
-	//s := client(UWB)
-	s := test1()
+	s := client(UWB)
+	//s := test1()
 	m := make(map[string]interface{})
 	if s == "" {
 		m["code"] = -1
@@ -65,6 +76,8 @@ func dealUwb(data string) map[string]interface{} {
 	s := strings.Split(data, ",")
 	var person []string
 	var cart []string
+	var personStr string
+	var cartStr string
 	for i := 1; i < len(s)-1; i++ {
 		if strings.Contains(s[i], "nan") {
 			continue
@@ -73,14 +86,18 @@ func dealUwb(data string) map[string]interface{} {
 			continue
 		}
 		if i < 11 {
+			cartStr += s[i] + ",      "
 			cart = append(cart, s[i])
 		} else {
+			personStr += s[i] + ",     "
 			person = append(person, s[i])
 		}
 	}
 	m := make(map[string]interface{})
 	m["person"] = person
 	m["cart"] = cart
+	fmt.Println("UWB人员 :", personStr)
+	fmt.Println("UWB车辆 :", cartStr)
 	return m
 }
 
@@ -130,7 +147,6 @@ func client(dw string) string {
 			println(err)
 		}
 	}(conn)
-	fmt.Println("采集的信息是：" + s)
 	return s
 }
 func dealDw(data string) string {
@@ -153,6 +169,5 @@ func dddd() string {
 		z = -z
 	}
 	result := strconv.Itoa(x) + " " + strconv.Itoa(y) + " " + strconv.Itoa(z)
-	fmt.Println("采集的信息是：" + result)
 	return result
 }
