@@ -2,12 +2,14 @@ package routers
 
 import (
 	"fmt"
+	"github.com/axgle/mahonia"
 	"github.com/labstack/echo/v4"
 	"helin/config"
 	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -24,9 +26,94 @@ type Obj struct {
 	Name string `json:"name"`
 }
 
-func FindObj() {
-	files, _ := ioutil.ReadDir("D:\\helin\\helin\\data")
-	fmt.Println(files[len(files)-1].Name())
+type PmData struct {
+	Time      string `json:"time"`
+	Person    string `json:"person"`
+	VolumeOne string `json:"volume_one"`
+	VolumeTwo string `json:"volume_two"`
+}
+
+// ModelData  获取对应的模型和数据
+func ModelData(c echo.Context) error {
+	var obj Obj
+	if err := c.Bind(&obj); err != nil {
+		return err
+	}
+	serverIpAdr := config.GetConfig().GetString("serverIpAdr")
+	result := make(map[string]interface{})
+	if obj.Name != "" {
+		result["obj1"] = serverIpAdr + obj.Name + "N1.obj"
+		result["obj2"] = serverIpAdr + obj.Name + "N2.obj"
+		return c.JSON(http.StatusOK, result)
+	}
+	dir := config.GetConfig().GetString("dataDir")
+	files, _ := ioutil.ReadDir(dir)
+	modTime := files[0].ModTime()
+	txtName := files[0].Name()
+	file := files[0]
+	for _, f := range files {
+		if modTime.Unix() < f.ModTime().Unix() {
+			txtName = f.Name()
+			file = f
+		}
+	}
+	readFile, _ := ioutil.ReadFile("./data/" + file.Name())
+	var pmData PmData
+	if readFile != nil {
+		f := string(readFile[:])
+		f = ConvertToString(f, "gbk", "utf-8")
+		splitData := strings.Split(f, "\r\n")
+		for i := 0; i < 4; i++ {
+			split := strings.Split(splitData[i], "=")
+			if i == 0 {
+				pmData.Time = split[1]
+			}
+			if i == 1 {
+				pmData.Person = split[1]
+			}
+			if i == 2 {
+				pmData.VolumeOne = split[1]
+			}
+			if i == 3 {
+				pmData.VolumeTwo = split[1]
+			}
+		}
+	}
+	fmt.Println(readFile)
+	txtNameStr := strings.ReplaceAll(txtName, ".txt", "")
+	result["obj1"] = serverIpAdr + txtNameStr + "N1.obj"
+	result["obj2"] = serverIpAdr + txtNameStr + "N2.obj"
+	result["table"] = pmData
+	return c.JSON(http.StatusOK, result)
+}
+
+func NameList(c echo.Context) error {
+	dir := config.GetConfig().GetString("dataDir")
+	files, _ := ioutil.ReadDir(dir)
+	m := make(map[int64]string)
+	keys := make([]int64, len(files))
+	result := make([]string, len(files))
+	for j := 0; j < len(files); j++ {
+		keys[j] = files[j].ModTime().Unix()
+		name := files[j].Name()
+		m[files[j].ModTime().Unix()] = strings.ReplaceAll(name, ".txt", "")
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] > keys[j]
+	})
+	for i := 0; i < len(keys); i++ {
+		result[i] = m[keys[i]]
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+func ConvertToString(src string, srcCode string, tagCode string) string {
+	srcCoder := mahonia.NewDecoder(srcCode)
+	srcResult := srcCoder.ConvertString(src)
+	tagCoder := mahonia.NewDecoder(tagCode)
+	_, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
+	result := string(cdata)
+	return result
 }
 
 func Dw(c echo.Context) error {

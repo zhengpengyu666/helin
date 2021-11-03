@@ -1,5 +1,18 @@
+#本地
 server:
   port: ":8080"
-#ipPort: "192.168.201.100:7751"
 ipPort: "192.168.201.101:7751"
-#ipPort: "127.0.0.1:7751"
+dataDir: "D:\\helin\\helin\\data"
+serverIpAdr: "localhost:8080/obj/"
+#测试服务器
+#server:
+#  port: ":8080"
+#dataDir: "C:\\helin\\data"
+#serverIpAdr: "81.68.165.103:8080/obj/"
+#生产服务器
+#server:
+#  port: ":8080"
+#ipPort: "192.168.201.101:7751"
+#dataDir: "D:\\helin\\data"
+#serverIpAdr: "192.168.201.101:8080/obj/"
+
