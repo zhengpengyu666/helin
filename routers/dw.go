@@ -27,7 +27,7 @@ type Obj struct {
 }
 
 type PmData struct {
-	Time      string `json:"time"`
+	Name      string `json:"name"`
 	Person    string `json:"person"`
 	VolumeOne string `json:"volume_one"`
 	VolumeTwo string `json:"volume_two"`
@@ -44,6 +44,9 @@ func ModelData(c echo.Context) error {
 	if obj.Name != "" {
 		result["obj1"] = serverIpAdr + obj.Name + "N1.obj"
 		result["obj2"] = serverIpAdr + obj.Name + "N2.obj"
+		textName := obj.Name + ".txt"
+		pmData := readTxt(textName)
+		result["table"] = pmData
 		return c.JSON(http.StatusOK, result)
 	}
 	dir := config.GetConfig().GetString("dataDir")
@@ -57,7 +60,16 @@ func ModelData(c echo.Context) error {
 			file = f
 		}
 	}
-	readFile, _ := ioutil.ReadFile("./data/" + file.Name())
+	pmData := readTxt(file.Name())
+	txtNameStr := strings.ReplaceAll(txtName, ".txt", "")
+	result["obj1"] = serverIpAdr + txtNameStr + "N1.obj"
+	result["obj2"] = serverIpAdr + txtNameStr + "N2.obj"
+	result["table"] = pmData
+	return c.JSON(http.StatusOK, result)
+}
+
+func readTxt(fileName string) PmData {
+	readFile, _ := ioutil.ReadFile("./data/" + fileName)
 	var pmData PmData
 	if readFile != nil {
 		f := string(readFile[:])
@@ -66,7 +78,7 @@ func ModelData(c echo.Context) error {
 		for i := 0; i < 4; i++ {
 			split := strings.Split(splitData[i], "=")
 			if i == 0 {
-				pmData.Time = split[1]
+				pmData.Name = split[1]
 			}
 			if i == 1 {
 				pmData.Person = split[1]
@@ -79,12 +91,7 @@ func ModelData(c echo.Context) error {
 			}
 		}
 	}
-	fmt.Println(readFile)
-	txtNameStr := strings.ReplaceAll(txtName, ".txt", "")
-	result["obj1"] = serverIpAdr + txtNameStr + "N1.obj"
-	result["obj2"] = serverIpAdr + txtNameStr + "N2.obj"
-	result["table"] = pmData
-	return c.JSON(http.StatusOK, result)
+	return pmData
 }
 
 func NameList(c echo.Context) error {
