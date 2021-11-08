@@ -11,7 +11,8 @@ func InitRouters() *echo.Echo {
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 5,
 	}))
-	e.Static("/obj", "./obj")
+	e.Static("/api-obj/obj", "./obj")
+	e.Static("/obj", "./static/dist/obj")
 	e.Static("/dist", "./static/dist")
 	e.Static("/index", "./static/dist/index.html")
 	e.Static("/", "./static/dist")

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.0f0d841496b8c0e7f4894f107b93dab1.js"
+  "/precache-manifest.5cc322cedb468409c290fe29d0399ad9.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "helin-3d"});
