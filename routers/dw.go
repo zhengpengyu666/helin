@@ -27,10 +27,11 @@ type Obj struct {
 }
 
 type PmData struct {
-	Name      string `json:"name"`
-	Person    string `json:"person"`
-	VolumeOne string `json:"volume_one"`
-	VolumeTwo string `json:"volume_two"`
+	Name      string  `json:"name"`
+	Person    string  `json:"person"`
+	VolumeOne float64 `json:"volume_one"`
+	VolumeTwo float64 `json:"volume_two"`
+	Total     float64 `json:"total"`
 }
 
 // ModelData  获取对应的模型和数据
@@ -84,13 +85,16 @@ func readTxt(fileName string) PmData {
 				pmData.Person = split[1]
 			}
 			if i == 2 {
-				pmData.VolumeOne = split[1]
+				f, _ := strconv.ParseFloat(split[1], 1)
+				pmData.VolumeOne = f
 			}
 			if i == 3 {
-				pmData.VolumeTwo = split[1]
+				f, _ := strconv.ParseFloat(split[1], 1)
+				pmData.VolumeTwo = f
 			}
 		}
 	}
+	pmData.Total = pmData.VolumeOne + pmData.VolumeTwo
 	return pmData
 }
 
@@ -124,12 +128,12 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 }
 
 func Dw(c echo.Context) error {
-	s1 := client(DW1)
-	s2 := client(DW2)
-	dw1 := dealDw(s1)
-	dw2 := dealDw(s2)
-	//dw1 := dddd()
-	//dw2 := dddd()
+	//s1 := client(DW1)
+	//s2 := client(DW2)
+	//dw1 := dealDw(s1)
+	//dw2 := dealDw(s2)
+	dw1 := dddd()
+	dw2 := dddd()
 	m := make(map[string]interface{})
 	if dw1 == "" || dw2 == "" {
 		m["code"] = -1
@@ -146,8 +150,8 @@ func Dw(c echo.Context) error {
 }
 
 func Uwb(c echo.Context) error {
-	s := client(UWB)
-	//s := test1()
+	//s := client(UWB)
+	s := test1()
 	m := make(map[string]interface{})
 	if s == "" {
 		m["code"] = -1
