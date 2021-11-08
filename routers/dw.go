@@ -128,12 +128,12 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 }
 
 func Dw(c echo.Context) error {
-	//s1 := client(DW1)
-	//s2 := client(DW2)
-	//dw1 := dealDw(s1)
-	//dw2 := dealDw(s2)
-	dw1 := dddd()
-	dw2 := dddd()
+	s1 := client(DW1)
+	s2 := client(DW2)
+	dw1 := dealDw(s1)
+	dw2 := dealDw(s2)
+	//dw1 := dddd()
+	//dw2 := dddd()
 	m := make(map[string]interface{})
 	if dw1 == "" || dw2 == "" {
 		m["code"] = -1
@@ -150,8 +150,8 @@ func Dw(c echo.Context) error {
 }
 
 func Uwb(c echo.Context) error {
-	//s := client(UWB)
-	s := test1()
+	s := client(UWB)
+	//s := test1()
 	m := make(map[string]interface{})
 	if s == "" {
 		m["code"] = -1
@@ -176,6 +176,8 @@ func dealUwb(data string) map[string]interface{} {
 	var cart []string
 	var personStr string
 	var cartStr string
+	mPerson := make(map[int]string)
+	mCart := make(map[int]string)
 	for i := 1; i < len(s)-1; i++ {
 		if strings.Contains(s[i], "nan") {
 			continue
@@ -184,9 +186,11 @@ func dealUwb(data string) map[string]interface{} {
 			continue
 		}
 		if i < 11 {
+			mCart[i] = s[i]
 			cartStr += s[i] + ",      "
 			cart = append(cart, s[i])
 		} else {
+			mPerson[i] = s[i]
 			personStr += s[i] + ",     "
 			person = append(person, s[i])
 		}
@@ -195,7 +199,9 @@ func dealUwb(data string) map[string]interface{} {
 	m["person"] = person
 	m["cart"] = cart
 	fmt.Println("UWB人员 :", personStr)
+	fmt.Println("人员数据对应", mPerson)
 	fmt.Println("UWB车辆 :", cartStr)
+	fmt.Println("车辆数据对应 :", mCart)
 	return m
 }
 

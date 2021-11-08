@@ -1,16 +1,16 @@
 #本地
 #server:
 #  port: ":8080"
-#dataDir: "D:\\helin\\helin\\data"
-#serverIpAdr: "/api-obj/obj/"
-#测试服务器
-server:
-  port: ":8080"
-dataDir: "C:\\helin\\data"
-serverIpAdr: "/api-obj/obj/"
-#生产服务器  192.168.201.100
-#server:
-#  port: ":8080"
 #dataDir: "D:\\helin\\data"
 #serverIpAdr: "/api-obj/obj/"
+#测试服务器
+#server:
+#  port: ":8080"
+#dataDir: "C:\\helin\\data"
+#serverIpAdr: "/api-obj/obj/"
+#生产服务器  192.168.201.100
+server:
+  port: ":8080"
+dataDir: "D:\\helin\\data"
+serverIpAdr: "/api-obj/obj/"
 
